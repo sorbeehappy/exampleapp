@@ -126,18 +126,63 @@
                 <div class="col-12">
                         <div class="card">
                             <div class="card-body">
-                                <h4 class="card-title">Responsive Table </h4>
-                                <h6 class="card-subtitle">Create responsive tables by wrapping any <code>.table</code> in <code>.table-responsive </code></h6>
-                                <div class="table-responsive">
+                                {{FormShow}}
+                                <div class="d-flex justify-content-between">
+									<div>
+								<h4 class="card-title">ລາຍການສະຕ໋ອກສິນຄ້າ </h4>
+									</div>
+									
+									<div>
+										<button type="button" v-if="FormShow" @click="SaveForm()" class="btn waves-effect waves-light btn-success me-2">ບັນທຶກ</button>
+										<button type="button" v-if="FormShow" @click="Cancel()" class="btn waves-effect waves-light btn-danger me-2">ຍົກເລີກ</button>
+										<button type="button" v-if="!FormShow" @click="AddNew()" class="btn waves-effect waves-light btn-info">ເພີ່ມໃໝ່</button>
+									</div>
+                                    
+								</div>
+                                         {{FormData}}
+                                           <hr>
+                                <div class="row" v-if="FormShow">
+                                        <div class="col-md-3">
+                                                <img :src="imagePreview" alt="">
+                                                <input type="file" class="form-control">
+                                        </div>
+                                        <div class="col-md-9">
+                                          
+                                            <div class="form-group">
+                                                <label for="product-name" class="form-label"> ຊື່ສິນຄ້າ</label>
+                                                <input type="text" class="form-control" id="product-name" v-model="FormProduct.name" placeholder="ປ້ອນຊື່ສິນຄ້າ...">
+                                            </div>
+                                             <div class="form-group">
+                                                <label for="product-amount" class="form-label"> ຈຳນວນ</label>
+                                                <input type="text" class="form-control" id="product-amount" v-model="FormProduct.amount" placeholder="ຈຳນວນສິນຄ້າ...">
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="price-buy" class="form-label"> ລາຄາຊື້</label>
+                                                        <input type="text" class="form-control" id="price-buy" v-model="FormProduct.price_buy" placeholder="ປ້ອນລາຄາຊື້...">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="price-sell" class="form-label"> ລາຄາຂາຍ</label>
+                                                        <input type="text" class="form-control" id="price-sell" v-model="FormProduct.price_sell" placeholder="ປ້ອນລາຄາຂາຍ...">
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                </div>
+                                <div class="table-responsive" v-if="!FormShow">
                                     <table class="table">
                                         <thead>
                                             <tr>
-                                                <th>Invoice</th>
-                                                <th>User</th>
-                                                <th>Date</th>
-                                                <th>Amount</th>
-                                                <th>Status</th>
-                                                <th>Country</th>
+                                                <th>ລະຫັດ</th>
+                                                <th>ຊື່ສິນຄ້າ</th>
+                                                <th>ຈຳນວນ</th>
+                                                <th>ລາຄາຊື່</th>
+                                                <th>ຈັດການ</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -149,38 +194,8 @@
                                                 <td>
                                                     <div class="label label-table label-success">Paid</div>
                                                 </td>
-                                                <td>EN</td>
                                             </tr>
-                                            <tr>
-                                                <td><a href="javascript:void(0)">Order #58746</a></td>
-                                                <td>Mary Adams</td>
-                                                <td><span class="text-muted"><i class="fa fa-clock-o"></i> Oct 12, 2017</span> </td>
-                                                <td>$245.30</td>
-                                                <td>
-                                                    <div class="label label-table label-danger">Shipped</div>
-                                                </td>
-                                                <td>CN</td>
-                                            </tr>
-                                            <tr>
-                                                <td><a href="javascript:void(0)">Order #98458</a></td>
-                                                <td>Caleb Richards</td>
-                                                <td><span class="text-muted"><i class="fa fa-clock-o"></i> May 18, 2017</span> </td>
-                                                <td>$38.00</td>
-                                                <td>
-                                                    <div class="label label-table label-info">Shipped</div>
-                                                </td>
-                                                <td>AU</td>
-                                            </tr>
-                                            <tr>
-                                                <td><a href="javascript:void(0)">Order #32658</a></td>
-                                                <td>June Lane</td>
-                                                <td><span class="text-muted"><i class="fa fa-clock-o"></i> Apr 28, 2017</span> </td>
-                                                <td>$77.99</td>
-                                                <td>
-                                                    <div class="label label-table label-success">Paid</div>
-                                                </td>
-                                                <td>FR</td>
-                                            </tr>
+                                         
                                         </tbody>
                                     </table>
                                 </div>
@@ -197,7 +212,16 @@ export default {
 
     data() {
         return {
-            
+            FormData:[],
+            FormShow: false,
+            urllocation: window.location.origin,
+            imagePreview: window.location.origin+"/assets/images/add_images.png",
+            FormProduct: {
+                name:'',
+                amount:'',
+                price_buy:'',
+                price_sell:''
+            }
         };
     },
 
@@ -207,6 +231,29 @@ export default {
 
     methods: {
         
+		AddNew(){
+			this.FormShow = true
+		},
+		Cancel(){
+			this.FormShow = false
+		},
+        SaveForm(){
+            console.log(this.FormProduct);
+            this.FormData.push({
+                id: Math.floor(Math.random() * 1000),
+                name: this.FormProduct.name,
+                amount: this.FormProduct.amount,
+                price_buy: this.FormProduct.price_buy,
+                price_sell: this.FormProduct.price_sell
+
+            });
+
+            this.FormProduct.name=''
+            this.FormProduct.amount=''
+            this.FormProduct.price_buy=''
+            this.FormProduct.price_sell=''
+            this.FormShow= false
+        }
     },
 };
 </script>
