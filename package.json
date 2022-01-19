@@ -19,6 +19,7 @@
     },
     "dependencies": {
         "vue": "^3.2.26",
+        "vue-cleave-component": "^3.0.1",
         "vue-router": "^4.0.12"
     }
 }

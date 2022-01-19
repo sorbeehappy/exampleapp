@@ -133,7 +133,7 @@
 									</div>
 									
 									<div>
-										<button type="button" v-if="FormShow" @click="SaveForm()" class="btn waves-effect waves-light btn-success me-2">ບັນທຶກ</button>
+										<button type="button" v-if="FormShow" @click="SaveForm()" :class="checkForm" class="btn waves-effect waves-light btn-success me-2">ບັນທຶກ</button>
 										<button type="button" v-if="FormShow" @click="Cancel()" class="btn waves-effect waves-light btn-danger me-2">ຍົກເລີກ</button>
 										<button type="button" v-if="!FormShow" @click="AddNew()" class="btn waves-effect waves-light btn-info">ເພີ່ມໃໝ່</button>
 									</div>
@@ -148,25 +148,37 @@
                                         </div>
                                         <div class="col-md-9">
                                           
-                                            <div class="form-group">
+                                            <!-- <div class="form-group">
                                                 <label for="product-name" class="form-label"> ຊື່ສິນຄ້າ</label>
                                                 <input type="text" class="form-control" id="product-name" v-model="FormProduct.name" placeholder="ປ້ອນຊື່ສິນຄ້າ...">
+                                            </div> -->
+                                            <div class="form-group mt-5 row">
+                                                <label for="product-name" class="col-2 col-form-label">ຊື່ສິນຄ້າ</label>
+                                                <div class="col-10">
+                                                <input class="form-control" type="text" v-model="FormProduct.name" placeholder="ປ້ອນຊື່ສິນຄ້າ..." id="product-name">
+                                                </div>
                                             </div>
-                                             <div class="form-group">
+                                            <div class="form-group mt-5 row">
+                                                <label for="product-amount" class="col-2 col-form-label">ຈຳນວນ</label>
+                                                <div class="col-10">
+                                                <cleave class="form-control" type="text" :options="option" v-model="FormProduct.amount" placeholder="ຈຳນວນສິນຄ້າ....." id="product-amount"/>
+                                                </div>
+                                            </div>
+                                             <!-- <div class="form-group">
                                                 <label for="product-amount" class="form-label"> ຈຳນວນ</label>
                                                 <input type="text" class="form-control" id="product-amount" v-model="FormProduct.amount" placeholder="ຈຳນວນສິນຄ້າ...">
-                                            </div>
+                                            </div> -->
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label for="price-buy" class="form-label"> ລາຄາຊື້</label>
-                                                        <input type="text" class="form-control" id="price-buy" v-model="FormProduct.price_buy" placeholder="ປ້ອນລາຄາຊື້...">
+                                                        <cleave type="text" :options="option" class="form-control" id="price-buy" v-model="FormProduct.price_buy" placeholder="ປ້ອນລາຄາຊື້..."/>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label for="price-sell" class="form-label"> ລາຄາຂາຍ</label>
-                                                        <input type="text" class="form-control" id="price-sell" v-model="FormProduct.price_sell" placeholder="ປ້ອນລາຄາຂາຍ...">
+                                                        <cleave type="text" :options="option" class="form-control" id="price-sell" v-model="FormProduct.price_sell" placeholder="ປ້ອນລາຄາຂາຍ..."/>
                                                     </div>
                                                 </div>
 
@@ -186,16 +198,16 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td><a href="javascript:void(0)">Order #26589</a></td>
-                                                <td>Herman Beck</td>
-                                                <td><span class="text-muted"><i class="fa fa-clock-o"></i> Oct 16, 2017</span> </td>
-                                                <td>$45.00</td>
-                                                <td>
-                                                    <div class="label label-table label-success">Paid</div>
+                                            <tr v-for="list in FormData" :key="list.id">
+                                                <td width="30">{{list.id}}</td>
+                                                <td>{{list.name}}</td>
+                                                <td>{{formatPrice(list.amount)}}</td>
+                                                <td>{{formatPrice(list.price_buy)}}</td>
+                                                <td width="130">
+                                                    <button type="button" @click="EditPro(list.id)" class="btn btn-info btn-circle text-white me-2"><i class="fa fa-edit"></i> </button>
+                                                    <button type="button" @click="DelPro(list.id)" class="btn btn-danger btn-circle text-white"><i class="fa ti-trash"></i> </button>
                                                 </td>
-                                            </tr>
-                                         
+                                            </tr>                                         
                                         </tbody>
                                     </table>
                                 </div>
@@ -212,8 +224,10 @@ export default {
 
     data() {
         return {
-            FormData:[],
+            FormData:[{ "id": 71, "name": "ເກີບ", "amount": "12", "price_buy": "25000", "price_sell": "250000" }, { "id": 564, "name": "ສະບູ", "amount": "23", "price_buy": "25000", "price_sell": "35000" }, { "id": 623, "name": "ຟອງລ້າງ", "amount": "52", "price_buy": "36000", "price_sell": "54000" }],
             FormShow: false,
+            FormType: true, // Formtype =true  (add new information), Formtype = false (Update information)
+            FormID: '',
             urllocation: window.location.origin,
             imagePreview: window.location.origin+"/assets/images/add_images.png",
             FormProduct: {
@@ -221,12 +235,33 @@ export default {
                 amount:'',
                 price_buy:'',
                 price_sell:''
+            },
+            option:{
+                //prefix:'$ ',
+                numeral:true,
+                numberalPositiveOnly: true,
+                noImmediatePrefix: true,
+                rawValueTrimPrefix: true,
+                numeralIntegerScale: 10,
+                numeralDecimalScale: 2,
+                numeralDecimalMark: '.',
+                delimiter: ',',
+
             }
         };
     },
 
     mounted() {
         
+    },
+    computed:{
+     checkForm(){
+         if(this.FormProduct.name == "" || this.FormProduct.amount == "" || this.FormProduct.price_buy == "" || this.FormProduct.price_sell == ""){
+             return "disabled";
+         }else{
+             return "";
+         }
+     }
     },
 
     methods: {
@@ -238,8 +273,8 @@ export default {
 			this.FormShow = false
 		},
         SaveForm(){
-            console.log(this.FormProduct);
-            this.FormData.push({
+            if(this.FormType){
+                this.FormData.push({
                 id: Math.floor(Math.random() * 1000),
                 name: this.FormProduct.name,
                 amount: this.FormProduct.amount,
@@ -248,11 +283,45 @@ export default {
 
             });
 
+          
+            }else{
+                console.log('ມີການອັບເດດ ID '+this.FormID)
+                this.FormData.find((i)=>i.id==this.FormID).name = this.FormProduct.name
+                this.FormData.find((i)=>i.id==this.FormID).amount = this.FormProduct.amount
+                this.FormData.find((i)=>i.id==this.FormID).price_buy = this.FormProduct.price_buy
+                this.FormData.find((i)=>i.id==this.FormID).price_sell = this.FormProduct.price_sell
+
+            }
             this.FormProduct.name=''
             this.FormProduct.amount=''
             this.FormProduct.price_buy=''
             this.FormProduct.price_sell=''
             this.FormShow= false
+            this.FormType = true
+            //console.log(this.FormProduct);
+            
+        },
+        EditPro(id){
+            //console.log(id)
+            let item = this.FormData.find((i)=>i.id==id)
+            this.FormShow = true
+
+             this.FormProduct.name = item.name
+            this.FormProduct.amount = item.amount
+            this.FormProduct.price_buy =item.price_buy
+            this.FormProduct.price_sell = item.price_sell
+
+            // ປ່ຽນສະຖານະ
+            this.FormType = false
+            this.FormID = id
+        },
+        DelPro(id){
+            let index = this.FormData.map((i)=>i.id).indexOf(id)
+            this.FormData.splice(index,1)
+        },
+        formatPrice(value){
+            let val = (value / 1).toFixed(0).replace(",", ".");
+            return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
     },
 };
